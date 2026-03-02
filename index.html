@@ -5,43 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salsabilah AI Assistant</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-            padding: 2rem;
-            border: 1px solid #1e293b;
-            border-radius: 15px;
-            background: #1e293b;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        h1 { color: #38bdf8; }
-        p { color: #94a3b8; }
-        .btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 25px;
-            background-color: #38bdf8;
-            color: #0f172a;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
+        :root { --bg: #0b0e14; --panel: #1e293b; --accent: #38bdf8; --text: #e2e8f0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { background: var(--panel); padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; border-bottom: 2px solid var(--accent); box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 15px; line-height: 1.5; font-size: 15px; word-wrap: break-word; }
+        .user { align-self: flex-end; background: var(--accent); color: #0f172a; border-bottom-right-radius: 2px; box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3); }
+        .ai { align-self: flex-start; background: var(--panel); border: 1px solid #334155; border-bottom-left-radius: 2px; }
+        .input-area { background: var(--panel); padding: 15px; display: flex; gap: 10px; border-top: 1px solid #334155; }
+        input { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #0f172a; color: white; outline: none; font-size: 16px; }
+        button { background: var(--accent); color: #0f172a; border: none; padding: 0 25px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { transform: scale(1.05); opacity: 0.9; }
+        button:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Salsabilah AI Assistant</h1>
-        <p>The future is here. Your personalized AI experience is loading...</p>
-        <a href="#" class="btn">Get Started</a>
-    </div>
+
+<header>Salsabilah AI Assistant</header>
+<div id="chat-box">
+    <div class="msg ai">হ্যালো! আমি আপনার পার্সোনাল এসিস্ট্যান্ট। এখন আমি লাইভ এবং আপনার যেকোনো কথা শোনার জন্য প্রস্তুত।</div>
+</div>
+
+<div class="input-area">
+    <input type="text" id="userInput" placeholder="আপনার বার্তা লিখুন..." onkeypress="if(event.key==='Enter') sendMessage()">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    // আপনার দেওয়া আসল API Key এখানে সেট করা হয়েছে
+    const API_KEY = "AIzaSyCmESatb-W6wb5chkjGse3c1m1EFnX2GPU"; 
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    window.sendMessage = async function() {
+        const input = document.getElementById('userInput');
+        const chatBox = document.getElementById('chat-box');
+        const text = input.value.trim();
+        if (!text) return;
+
+        // User message display
+        appendMsg(text, 'user');
+        input.value = "";
+
+        // AI loading state
+        const aiMsgDiv = appendMsg("চিন্তা করছি...", 'ai');
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            const result = await model.generateContent(text);
+            const response = await result.response;
+            aiMsgDiv.textContent = response.text();
+        } catch (error) {
+            console.error(error);
+            aiMsgDiv.textContent = "দুঃখিত মামা, কানেকশনে কোনো সমস্যা হয়েছে। একটু পরে আবার চেষ্টা করো।";
+        }
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendMsg(text, type) {
+        const chatBox = document.getElementById('chat-box');
+        const div = document.createElement('div');
+        div.className = `msg ${type}`;
+        div.textContent = text;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return div;
+    }
+</script>
 </body>
 </html>
