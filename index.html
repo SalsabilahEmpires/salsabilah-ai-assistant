@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salsabilah Gemini 3 Ultra Assistant</title>
+    <title>Salsabilah Gemini 3 Assistant</title>
     <style>
         :root { --bg: #0b0e14; --panel: #1e293b; --accent: #38bdf8; --text: #e2e8f0; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; }
@@ -21,9 +21,9 @@
 </head>
 <body>
 
-<header>Salsabilah Gemini 3 Assistant (V-3.5)</header>
+<header>Salsabilah Gemini Assistant (V-3.5)</header>
 <div id="chat-box">
-    <div class="msg ai">আসসালামু আলাইকুম! আমি Gemini 3 Flash। আপনার ৩ মাসের পরিশ্রমের ফসল এখন আপনার সামনে। কোনো টাকা ছাড়াই আমি আপনার সেবা করতে প্রস্তুত।</div>
+    <div class="msg ai">আসসালামু আলাইকুম! আমি Salsabilah Gemini Assistant। আপনার সেবায় আমি প্রস্তুত। আমাকে যেকোনো প্রশ্ন করতে পারেন।</div>
 </div>
 
 <div class="input-area">
@@ -34,12 +34,12 @@
 <script type="module">
     import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-    // আপনার দেওয়া API Key
-    const API_KEY = "AIzaSyCmESatb-W6wb5chkjGse3c1m1EFnX2GPU"; 
+    // আপনার নতুন API Key এখানে বসান
+    const API_KEY = "YOUR_GEMINI_API_KEY_HERE"; 
     const genAI = new GoogleGenerativeAI(API_KEY);
     
-    // Gemini 3 Flash মডেল কনফিগারেশন
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
+    // Gemini Flash মডেল
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     window.sendMessage = async function() {
         const input = document.getElementById('userInput');
@@ -49,7 +49,7 @@
 
         appendMsg(text, 'user');
         input.value = "";
-        const aiDiv = appendMsg("Gemini 3 চিন্তা করছে...", 'ai');
+        const aiDiv = appendMsg("Gemini চিন্তা করছে...", 'ai');
 
         try {
             const result = await model.generateContent(text);
@@ -58,7 +58,7 @@
             
             aiDiv.textContent = replyText;
             
-            // অটো ভয়েস রিড আউট (বাংলা সাপোর্ট থাকলে পড়বে)
+            // অটো ভয়েস বাটন যুক্ত করা
             const speakBtn = document.createElement('span');
             speakBtn.className = 'voice-btn';
             speakBtn.textContent = "🔊 শুনে নিন";
@@ -66,7 +66,8 @@
             aiDiv.appendChild(speakBtn);
 
         } catch (error) {
-            aiDiv.textContent = "মামা, মনে হচ্ছে এই API Key টা ঠিক নেই। গুগল আপনার রিকোয়েস্ট নিচ্ছে না। ওই লোকটাকে বলেন টাকা ফেরত দিতে!";
+            console.error(error);
+            aiDiv.textContent = "দুঃখিত, কোনো একটি সমস্যা হয়েছে। অনুগ্রহ করে আপনার API Key এবং নেটওয়ার্ক সংযোগ যাচাই করুন।";
         }
         chatBox.scrollTop = chatBox.scrollHeight;
     }
@@ -82,8 +83,9 @@
     }
 
     function speak(text) {
+        window.speechSynthesis.cancel(); // আগের কোনো বক্তব্য থাকলে তা বন্ধ করবে
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'bn-BD'; // বাংলা ভয়েস
+        utterance.lang = 'bn-BD';
         window.speechSynthesis.speak(utterance);
     }
 </script>
